@@ -46,7 +46,7 @@ function searchWinner(){
 				return 2;
 			fi;
 		fi;
-    done;
+	done;
 	
 	#search for the winner by columns
 	for ((i=0;i<3;i++)) do
@@ -96,7 +96,15 @@ while true; do
 	if [[ $my_move == 1 ]]; then
 		#processing my move
 		echo "Go >>";		
-		read row column;		
+		read row column;
+		if [[ $row > 3 || $column > 3 ]]; then
+			echo "Cell does not exist";
+			continue;
+		fi;
+		if [[ "${map[$(($row-1)),$(($column-1))]}" != "_" ]]; then
+			echo "This cell is not empty";
+			continue;
+		fi;
 		map[$(($row-1)),$(($column-1))]=$my_symbol;	
 		echo $row $column > $pipe;
 		my_move=0;
