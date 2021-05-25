@@ -1,15 +1,6 @@
-my_symbol=$1;
+my_symbol="?";
 enemy_symbol="?";
 my_move=0;
-
-if [[ $my_symbol == "x" ]]; then
-	echo "---You are x---";
-	enemy_symbol="o";
-	my_move=1;
-elif [[ $my_symbol == "o" ]]; then
-	echo "---You are o---";
-	enemy_symbol="x";
-fi;
 
 declare -A map;
 for ((i=0;i<3;i++)) do
@@ -22,9 +13,28 @@ pipe=/tmp/mypipe;
 trap "rm -f $pipe" EXIT
 if [[ ! -p $pipe ]]; then
     mknod $pipe p;
+	my_symbol="x";
+	enemy_symbol="o";
+	my_move=1;
+	echo "---You are x---";
+else
+	my_symbol="o";
+	enemy_symbol="x";
+	echo "---You are o---";
 fi;
 
-function searchWinner(){	
+function checkExistCell(){
+	for ((i=0;i<3;i++)) do
+		for ((j=0;j<3;j++)) do
+			if [[ "${map[$i,$j]}" == "_" ]]; then
+				return 1;
+			fi;
+		done;
+	done;
+	return 0;
+}
+
+function searchWinner(){
 	#search for the winner by rows
 	for ((i=0;i<3;i++)) do
 		have_winner=1;
@@ -120,7 +130,14 @@ while true; do
 	for ((i=0;i<3;i++)) do
 		echo ${map[$i,0]} ${map[$i,1]} ${map[$i,2]};
 	done;
-		
+	
+	checkExistCell;
+	exist_cell=$?;
+	if [[ $exist_cell == 0 ]]; then
+		echo "Friendship won!";
+		break;
+	fi;
+	
 	searchWinner;
 	winner=$?;
 	if [[ $winner == 0 ]]; then
